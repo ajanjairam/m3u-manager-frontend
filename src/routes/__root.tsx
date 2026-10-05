@@ -1,19 +1,19 @@
-import * as React from 'react'
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import Provider from '@/components/providers'
-import AppSidebar from '@/components/sidebar'
+import * as React from "react";
+import Provider from "@/components/providers";
+import AppSidebar from "@/components/sidebar";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   component: RootComponent,
-})
+});
 
 function RootComponent() {
   return (
     <React.Fragment>
       <Provider>
-        <AppSidebar/>
+        <AppSidebar />
         <Outlet />
       </Provider>
     </React.Fragment>
-  )
+  );
 }
