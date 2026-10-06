@@ -20,16 +20,16 @@ import {
 
 export default function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <Link to="/" className="flex items-center space-x-1">
+            <Link to="/">
+              <SidebarMenuButton>
                 <TvMinimalPlay />
                 <span>M3U Manager</span>
-              </Link>
-            </SidebarMenuButton>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -38,42 +38,42 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Link to="/playlist" className="flex items-center space-x-1">
+                <Link to="/playlist">
+                  <SidebarMenuButton>
                     <ListVideo />
                     <span>Playlist</span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Link to="/chanels" className="flex items-center space-x-1">
+                <Link to="/channels">
+                  <SidebarMenuButton>
                     <Antenna />
-                    <span>Chanels</span>
-                  </Link>
-                </SidebarMenuButton>
+                    <span>Channels</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Link to="/output" className="flex items-center space-x-1">
+                <Link to="/output">
+                  <SidebarMenuButton>
                     <Tv />
                     <span>Output</span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Link to="/epg" className="flex items-center space-x-1">
+                <Link to="/epg">
+                  <SidebarMenuButton>
                     <Clapperboard />
                     <span>EPG</span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
