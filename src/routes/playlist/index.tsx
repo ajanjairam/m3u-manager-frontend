@@ -2,7 +2,6 @@ import { LoaderCircle } from "lucide-react";
 import { getPlaylists } from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaylistStatusToggle } from "@/src/components/playlist-table";
 import {
   createColumnHelper,
   tableFeatures,
@@ -16,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+import { Switch } from "@/src/components/ui/switch";
 
 export const Route = createFileRoute("/playlist/")({
   component: PlaylistPage,
@@ -40,10 +40,7 @@ const columns = columnHelper.columns([
   columnHelper.accessor("active", {
     header: "Status",
     cell: ({ row, getValue }) => (
-      <PlaylistStatusToggle
-        playlistId={row.original.id}
-        initialActive={getValue()}
-      />
+      <Switch id={`playlist-status-${row.original.id}`} checked={getValue()} />
     ),
   }),
 ]);

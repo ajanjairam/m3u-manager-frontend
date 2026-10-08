@@ -25,9 +25,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
+import { Tooltip } from "@/src/components/ui/tooltip";
 import { getChannelPagination } from "@/src/utils/channel";
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, LoaderCircle, Plus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ExternalLink,
+  LoaderCircle,
+  Plus,
+} from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/channels/")({
@@ -139,12 +148,40 @@ function ChannelsPage() {
             <Pagination className="mx-0 w-auto">
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => handlePageChange(page, -1)}
-                  />
+                  <Button variant="ghost" onClick={() => setPage(1)}>
+                    <ChevronsLeft />
+                  </Button>
                 </PaginationItem>
                 <PaginationItem>
-                  <PaginationNext onClick={() => handlePageChange(page, 1)} />
+                  <Button
+                    variant="ghost"
+                    onClick={() => handlePageChange(page, -1)}
+                  >
+                    <ChevronLeft />
+                  </Button>
+                </PaginationItem>
+                <Button variant="outline">
+                  {page} / {channels.total_pages}
+                </Button>
+                <PaginationItem>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handlePageChange(page, 1)}
+                  >
+                    <ChevronRight />{" "}
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      channels &&
+                      channels.total_pages &&
+                      setPage(channels.total_pages)
+                    }
+                  >
+                    <ChevronsRight />
+                  </Button>
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
