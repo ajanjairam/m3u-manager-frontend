@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChannelsIndexRouteImport } from './routes/channels/index'
 import { Route as PlaylistIndexRouteImport } from './routes/playlist/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChannelsIndexRoute = ChannelsIndexRouteImport.update({
+  id: '/channels/',
+  path: '/channels/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlaylistIndexRoute = PlaylistIndexRouteImport.update({
@@ -25,27 +31,31 @@ const PlaylistIndexRoute = PlaylistIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/channels/': typeof ChannelsIndexRoute
   '/playlist/': typeof PlaylistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/channels': typeof ChannelsIndexRoute
   '/playlist': typeof PlaylistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/channels/': typeof ChannelsIndexRoute
   '/playlist/': typeof PlaylistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/playlist/'
+  fullPaths: '/' | '/channels/' | '/playlist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/playlist'
-  id: '__root__' | '/' | '/playlist/'
+  to: '/' | '/channels' | '/playlist'
+  id: '__root__' | '/' | '/channels/' | '/playlist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChannelsIndexRoute: typeof ChannelsIndexRoute
   PlaylistIndexRoute: typeof PlaylistIndexRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/channels/': {
+      id: '/channels/'
+      path: '/channels'
+      fullPath: '/channels/'
+      preLoaderRoute: typeof ChannelsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/playlist/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChannelsIndexRoute: ChannelsIndexRoute,
   PlaylistIndexRoute: PlaylistIndexRoute,
 }
 export const routeTree = rootRouteImport

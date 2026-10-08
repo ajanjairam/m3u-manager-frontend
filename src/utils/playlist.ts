@@ -1,6 +1,6 @@
-import axios from "@/lib/axios";
+import axios from "@/src/lib/axios";
 import type { AxiosError } from "axios";
-import { queryClient } from "@/components/providers";
+import { queryClient } from "@/src/components/providers";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   CreatePlaylistInput,

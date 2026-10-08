@@ -1,15 +1,24 @@
+import { LoaderCircle } from "lucide-react";
 import { getPlaylists } from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaylistStatusToggle } from "@/components/table";
+import { PlaylistStatusToggle } from "@/src/components/playlist-table";
 import {
   createColumnHelper,
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/src/components/ui/table";
 
 export const Route = createFileRoute("/playlist/")({
-  component: RouteComponent,
+  component: PlaylistPage,
 });
 
 const features = tableFeatures({});
@@ -41,77 +50,81 @@ const columns = columnHelper.columns([
 
 const emptyPlaylists: Playlist[] = [];
 
-function RouteComponent() {
-  const { data, isLoading, isError, error } = getPlaylists();
+function PlaylistPage() {
+  const {
+    data: playlists,
+    isLoading,
+    isError,
+    isSuccess,
+    error,
+  } = getPlaylists();
   const table = useTable(
     {
       features,
       columns,
-      data: data ?? emptyPlaylists,
+      data: playlists ?? emptyPlaylists,
     },
     (state) => state,
   );
 
-  if (isLoading) {
-    return <main className="p-6">Loading playlists…</main>;
-  }
-
-  if (isError) {
-    return (
-      <main className="p-6 text-destructive">
-        Failed to load playlists: {error.message}
-      </main>
-    );
-  }
-
   return (
-    <main className="space-y-4 p-6">
+    <main className="min-w-0 flex-1 space-y-4 md:space-y-8 p-6">
       <div>
         <h1 className="text-2xl font-semibold">Playlists</h1>
-        <p className="text-sm text-muted-foreground">
-          All playlists configured in M3U Manager.
-        </p>
+        {isSuccess && (
+          <p className="text-sm text-muted-foreground">
+            All playlists configured in M3U Manager.
+          </p>
+        )}
+        {isError && (
+          <p className="text-sm text-destructive">
+            Failed to load playlists: {error.message}
+          </p>
+        )}
+        {isLoading && <LoaderCircle className="animate-spin" />}
       </div>
 
-      <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted/50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-4 py-3 font-medium">
-                    {header.isPlaceholder ? null : (
-                      <table.FlexRender header={header} />
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-t">
-                  {row.getAllCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-3">
-                      <table.FlexRender cell={cell} />
-                    </td>
+      {isSuccess && (
+        <div className="overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <table.FlexRender header={header} />
+                      )}
+                    </TableHead>
                   ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
-                  No playlists found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getAllCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center text-muted-foreground"
+                  >
+                    No playlists found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </main>
   );
 }

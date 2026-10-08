@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ThemeProvider } from "./theme-provider";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/src/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient();

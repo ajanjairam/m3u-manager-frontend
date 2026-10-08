@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarGroupContent,
-} from "@/components/ui/sidebar";
+} from "@/src/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
 import {
   Antenna,
