@@ -14,8 +14,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/src/components/ui/pagination";
 import {
   Select,
@@ -25,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Tooltip } from "@/src/components/ui/tooltip";
 import { getChannelPagination } from "@/src/utils/channel";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -82,7 +79,7 @@ function ChannelsPage() {
       </div>
       {isSuccess && (
         <>
-          <div className="flex w-full 2xl:max-w-xl flex-col gap-6">
+          <div className="flex w-full flex-col gap-6">
             <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {channels.items.map((channel) => (
                 <Item key={channel.id} variant="outline">
@@ -148,13 +145,18 @@ function ChannelsPage() {
             <Pagination className="mx-0 w-auto">
               <PaginationContent>
                 <PaginationItem>
-                  <Button variant="ghost" onClick={() => setPage(1)}>
+                  <Button
+                    variant="ghost"
+                    disabled={page === 1}
+                    onClick={() => setPage(1)}
+                  >
                     <ChevronsLeft />
                   </Button>
                 </PaginationItem>
                 <PaginationItem>
                   <Button
                     variant="ghost"
+                    disabled={page === 1}
                     onClick={() => handlePageChange(page, -1)}
                   >
                     <ChevronLeft />
@@ -166,6 +168,7 @@ function ChannelsPage() {
                 <PaginationItem>
                   <Button
                     variant="ghost"
+                    disabled={page === channels.total_pages}
                     onClick={() => handlePageChange(page, 1)}
                   >
                     <ChevronRight />{" "}
@@ -174,11 +177,8 @@ function ChannelsPage() {
                 <PaginationItem>
                   <Button
                     variant="ghost"
-                    onClick={() =>
-                      channels &&
-                      channels.total_pages &&
-                      setPage(channels.total_pages)
-                    }
+                    disabled={page === channels.total_pages}
+                    onClick={() => setPage(channels.total_pages)}
                   >
                     <ChevronsRight />
                   </Button>

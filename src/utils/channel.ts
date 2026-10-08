@@ -5,7 +5,7 @@ import type { ChannelPage } from "../types/channel";
 export const channelQueryKeys = {
   all: ["channels"] as const,
   page: (page: number, pageSize: number) =>
-    ["channels", "page", page, pageSize] as const,
+    ["channels-pagination", page, pageSize] as const,
 };
 
 export async function fetchChannelsPage(

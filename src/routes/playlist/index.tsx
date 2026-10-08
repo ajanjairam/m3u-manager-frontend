@@ -1,7 +1,7 @@
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Plus } from "lucide-react";
 import { getPlaylists } from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   createColumnHelper,
   tableFeatures,
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { Switch } from "@/src/components/ui/switch";
+import { buttonVariants } from "@/src/components/ui/button";
 
 export const Route = createFileRoute("/playlist/")({
   component: PlaylistPage,
@@ -79,6 +80,12 @@ function PlaylistPage() {
           </p>
         )}
         {isLoading && <LoaderCircle className="animate-spin" />}
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Link to="/playlist/add" className={buttonVariants()}>
+          Add <Plus />
+        </Link>
       </div>
 
       {isSuccess && (

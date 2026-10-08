@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChannelsIndexRouteImport } from './routes/channels/index'
 import { Route as PlaylistIndexRouteImport } from './routes/playlist/index'
+import { Route as PlaylistAddRouteImport } from './routes/playlist/add'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,33 +29,42 @@ const PlaylistIndexRoute = PlaylistIndexRouteImport.update({
   path: '/playlist/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaylistAddRoute = PlaylistAddRouteImport.update({
+  id: '/playlist/add',
+  path: '/playlist/add',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/playlist/add': typeof PlaylistAddRoute
   '/channels/': typeof ChannelsIndexRoute
   '/playlist/': typeof PlaylistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/playlist/add': typeof PlaylistAddRoute
   '/channels': typeof ChannelsIndexRoute
   '/playlist': typeof PlaylistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/playlist/add': typeof PlaylistAddRoute
   '/channels/': typeof ChannelsIndexRoute
   '/playlist/': typeof PlaylistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/channels/' | '/playlist/'
+  fullPaths: '/' | '/playlist/add' | '/channels/' | '/playlist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/channels' | '/playlist'
-  id: '__root__' | '/' | '/channels/' | '/playlist/'
+  to: '/' | '/playlist/add' | '/channels' | '/playlist'
+  id: '__root__' | '/' | '/playlist/add' | '/channels/' | '/playlist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PlaylistAddRoute: typeof PlaylistAddRoute
   ChannelsIndexRoute: typeof ChannelsIndexRoute
   PlaylistIndexRoute: typeof PlaylistIndexRoute
 }
@@ -82,11 +92,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaylistIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playlist/add': {
+      id: '/playlist/add'
+      path: '/playlist/add'
+      fullPath: '/playlist/add'
+      preLoaderRoute: typeof PlaylistAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PlaylistAddRoute: PlaylistAddRoute,
   ChannelsIndexRoute: ChannelsIndexRoute,
   PlaylistIndexRoute: PlaylistIndexRoute,
 }

@@ -10,7 +10,7 @@ import type {
 
 export const playlistQueryKeys = {
   all: ["playlists"] as const,
-  detail: (id: number) => ["playlists", id] as const,
+  detail: (id: number) => ["playlist", id] as const,
 };
 
 export async function fetchPlaylists(): Promise<Playlist[]> {
