@@ -4,8 +4,8 @@ import { queryClient } from "@/src/components/providers";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   CreatePlaylistInput,
+  CreatePlaylistResponse,
   Playlist,
-  PlaylistWithChannels,
 } from "../types/playlist";
 
 export const playlistQueryKeys = {
@@ -25,8 +25,11 @@ export async function fetchPlaylist(id: number): Promise<Playlist> {
 
 export async function createPlaylist(
   input: CreatePlaylistInput,
-): Promise<PlaylistWithChannels> {
-  const { data } = await axios.post<PlaylistWithChannels>("/playlist/", input);
+): Promise<CreatePlaylistResponse> {
+  const { data } = await axios.post<CreatePlaylistResponse>(
+    "/playlist/",
+    input,
+  );
   return data;
 }
 
@@ -45,14 +48,18 @@ export function usePlaylist(id: number) {
   });
 }
 
-export function useCreatePlaylist() {
-  return useMutation<PlaylistWithChannels, AxiosError, CreatePlaylistInput>({
+export function addPlaylist() {
+  return useMutation<
+    CreatePlaylistResponse,
+    AxiosError<{ message?: string }>,
+    CreatePlaylistInput
+  >({
     mutationFn: createPlaylist,
     onSuccess: async (createdPlaylist) => {
       await queryClient.invalidateQueries({ queryKey: playlistQueryKeys.all });
       queryClient.setQueryData(
-        playlistQueryKeys.detail(createdPlaylist.id),
-        createdPlaylist,
+        playlistQueryKeys.detail(createdPlaylist.playlist.id),
+        createdPlaylist.playlist,
       );
     },
   });

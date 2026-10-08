@@ -22,6 +22,11 @@ export interface PlaylistWithChannels extends Playlist {
   channels: Channel[];
 }
 
+export interface CreatePlaylistResponse {
+  playlist: Playlist;
+  channels: Channel[];
+}
+
 export interface CreatePlaylistInput {
   name: string;
   uri: string;
