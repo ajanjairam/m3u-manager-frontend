@@ -1,4 +1,5 @@
-import { LoaderCircle, Plus } from "lucide-react";
+import { useState } from "react";
+import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import { getPlaylists } from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -16,7 +17,16 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { Switch } from "@/src/components/ui/switch";
-import { buttonVariants } from "@/src/components/ui/button";
+import { Button, buttonVariants } from "@/src/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
+import { Label } from "@/src/components/ui/label";
 
 export const Route = createFileRoute("/playlist/")({
   component: PlaylistPage,
@@ -25,30 +35,11 @@ export const Route = createFileRoute("/playlist/")({
 const features = tableFeatures({});
 const columnHelper = createColumnHelper<typeof features, Playlist>();
 
-const columns = columnHelper.columns([
-  columnHelper.accessor("name", {
-    header: "Name",
-    cell: (info) => <span className="font-medium">{info.getValue()}</span>,
-  }),
-  columnHelper.accessor("uri", {
-    header: "URL",
-    cell: (info) => (
-      <span className="block max-w-xl truncate" title={info.getValue()}>
-        {info.getValue()}
-      </span>
-    ),
-  }),
-  columnHelper.accessor("active", {
-    header: "Status",
-    cell: ({ row, getValue }) => (
-      <Switch id={`playlist-status-${row.original.id}`} checked={getValue()} />
-    ),
-  }),
-]);
-
 const emptyPlaylists: Playlist[] = [];
 
 function PlaylistPage() {
+  const [deletePlaylist, setDeletePlaylist] = useState<Playlist | null>(null);
+  const [isDeleteChannels, setIsDeleteChannels] = useState(false);
   const {
     data: playlists,
     isLoading,
@@ -56,6 +47,62 @@ function PlaylistPage() {
     isSuccess,
     error,
   } = getPlaylists();
+
+  const columns = columnHelper.columns([
+    columnHelper.accessor("name", {
+      header: "Name",
+      cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("uri", {
+      header: "URL",
+      cell: (info) => (
+        <span className="block max-w-xl truncate" title={info.getValue()}>
+          {info.getValue()}
+        </span>
+      ),
+    }),
+    columnHelper.accessor("active", {
+      header: "Status",
+      cell: ({ row, getValue }) => (
+        <Switch
+          id={`playlist-status-${row.original.id}`}
+          checked={getValue()}
+        />
+      ),
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Edit ${row.original.name}`}
+            title={`Edit ${row.original.name}`}
+          >
+            <Pencil />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="text-destructive hover:text-destructive"
+            aria-label={`Delete ${row.original.name}`}
+            title={`Delete ${row.original.name}`}
+            onClick={() => {
+              setDeletePlaylist(row.original);
+              setIsDeleteChannels(false);
+            }}
+          >
+            <Trash2 />
+          </Button>
+        </div>
+      ),
+    }),
+  ]);
+
   const table = useTable(
     {
       features,
@@ -129,6 +176,50 @@ function PlaylistPage() {
           </Table>
         </div>
       )}
+
+      <Dialog
+        open={deletePlaylist !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletePlaylist(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete playlist</DialogTitle>
+            <DialogDescription>
+              {deletePlaylist
+                ? `Delete “${deletePlaylist.name}”? This action cannot be undone.`
+                : "Choose whether to also delete channels associated with this playlist."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="delete-associated-channels"
+              checked={isDeleteChannels}
+              onCheckedChange={setIsDeleteChannels}
+            />
+            <Label htmlFor="delete-associated-channels">
+              Delete channels associated with playlist
+            </Label>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeletePlaylist(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={!deletePlaylist}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
