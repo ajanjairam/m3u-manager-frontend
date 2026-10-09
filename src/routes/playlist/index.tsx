@@ -185,11 +185,11 @@ function PlaylistPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete playlist</DialogTitle>
+            <DialogTitle>Delete Playlist</DialogTitle>
             <DialogDescription>
               {deletePlaylist
                 ? `Delete “${deletePlaylist.name}”? This action cannot be undone.`
-                : "Choose whether to also delete channels associated with this playlist."}
+                : "Delete? This action cannot be undone."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-3">
