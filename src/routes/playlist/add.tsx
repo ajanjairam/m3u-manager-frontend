@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
-import { addPlaylist } from "@/src/utils/playlist";
+import { useSavePlaylist } from "@/src/utils/playlist";
 import { Spinner } from "@/src/components/ui/spinner";
 
 export const Route = createFileRoute("/playlist/add")({
@@ -26,7 +26,7 @@ const urlPattern = /^https?:\/\/\S+$/i;
 
 function PlaylistAddPage() {
   const navigate = useNavigate();
-  const createPlaylist = addPlaylist();
+  const createPlaylist = useSavePlaylist();
   const form = useForm({
     defaultValues: {
       name: "",

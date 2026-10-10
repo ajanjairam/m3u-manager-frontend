@@ -18,7 +18,10 @@ export async function fetchChannelsPage(
   return data;
 }
 
-export function getChannelPagination(page: number = 1, pageSize: number = 25) {
+export function useFindChannelsWithPagination(
+  page: number = 1,
+  pageSize: number = 25,
+) {
   return useQuery({
     queryKey: channelQueryKeys.page(page, pageSize),
     queryFn: () => fetchChannelsPage(page, pageSize),

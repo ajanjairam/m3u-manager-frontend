@@ -33,14 +33,24 @@ export async function createPlaylist(
   return data;
 }
 
-export function getPlaylists() {
+export async function deletePlaylist({
+  id,
+  channels,
+}: {
+  id: number;
+  channels: boolean;
+}): Promise<void> {
+  await axios.delete(`/playlist/${id}`, { params: { channels } });
+}
+
+export function useFindAllPlaylists() {
   return useQuery({
     queryKey: playlistQueryKeys.all,
     queryFn: fetchPlaylists,
   });
 }
 
-export function usePlaylist(id: number) {
+export function useFindPlaylist(id: number) {
   return useQuery({
     queryKey: playlistQueryKeys.detail(id),
     queryFn: () => fetchPlaylist(id),
@@ -48,7 +58,21 @@ export function usePlaylist(id: number) {
   });
 }
 
-export function addPlaylist() {
+export function useDeletePlaylist() {
+  return useMutation<
+    void,
+    AxiosError<{ message?: string }>,
+    { id: number; channels: boolean }
+  >({
+    mutationFn: deletePlaylist,
+    onSuccess: async (_, { id }) => {
+      await queryClient.invalidateQueries({ queryKey: playlistQueryKeys.all });
+      queryClient.removeQueries({ queryKey: playlistQueryKeys.detail(id) });
+    },
+  });
+}
+
+export function useSavePlaylist() {
   return useMutation<
     CreatePlaylistResponse,
     AxiosError<{ message?: string }>,

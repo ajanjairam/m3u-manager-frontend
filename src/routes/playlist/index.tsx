@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
-import { getPlaylists } from "@/src/utils/playlist";
+import { useFindAllPlaylists, useDeletePlaylist } from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -39,14 +39,15 @@ const emptyPlaylists: Playlist[] = [];
 
 function PlaylistPage() {
   const [deletePlaylist, setDeletePlaylist] = useState<Playlist | null>(null);
-  const [isDeleteChannels, setIsDeleteChannels] = useState(false);
+  const [isDeleteChannels, setIsDeleteChannels] = useState(true);
+  const deletePlaylistMutation = useDeletePlaylist();
   const {
     data: playlists,
     isLoading,
     isError,
     isSuccess,
     error,
-  } = getPlaylists();
+  } = useFindAllPlaylists();
 
   const columns = columnHelper.columns([
     columnHelper.accessor("name", {
@@ -92,8 +93,9 @@ function PlaylistPage() {
             aria-label={`Delete ${row.original.name}`}
             title={`Delete ${row.original.name}`}
             onClick={() => {
+              deletePlaylistMutation.reset();
               setDeletePlaylist(row.original);
-              setIsDeleteChannels(false);
+              setIsDeleteChannels(true);
             }}
           >
             <Trash2 />
@@ -199,23 +201,46 @@ function PlaylistPage() {
               onCheckedChange={setIsDeleteChannels}
             />
             <Label htmlFor="delete-associated-channels">
-              Delete channels associated with playlist
+              Delete channels associated with playlist?
             </Label>
           </div>
+          {deletePlaylistMutation.isError && (
+            <p className="text-sm text-destructive" role="alert">
+              {deletePlaylistMutation.error.response?.data?.message ??
+                "Unable to delete playlist. Please try again."}
+            </p>
+          )}
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              onClick={() => setDeletePlaylist(null)}
+              onClick={() => {
+                deletePlaylistMutation.reset();
+                setDeletePlaylist(null);
+              }}
+              disabled={deletePlaylistMutation.isPending}
             >
               Cancel
             </Button>
             <Button
-              type="submit"
+              type="button"
               variant="destructive"
-              disabled={!deletePlaylist}
+              disabled={!deletePlaylist || deletePlaylistMutation.isPending}
+              onClick={() => {
+                if (!deletePlaylist) return;
+
+                deletePlaylistMutation.mutate(
+                  {
+                    id: deletePlaylist.id,
+                    channels: isDeleteChannels,
+                  },
+                  {
+                    onSuccess: () => setDeletePlaylist(null),
+                  },
+                );
+              }}
             >
-              Delete
+              {deletePlaylistMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

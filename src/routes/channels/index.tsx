@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { getChannelPagination } from "@/src/utils/channel";
+import { useFindChannelsWithPagination } from "@/src/utils/channel";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronLeft,
@@ -49,7 +49,7 @@ function ChannelsPage() {
     isError,
     isSuccess,
     error,
-  } = getChannelPagination(page, pageSize);
+  } = useFindChannelsWithPagination(page, pageSize);
 
   function handlePageChange(page: number, direction: -1 | 1) {
     if (direction === -1) {
@@ -117,75 +117,79 @@ function ChannelsPage() {
               ))}
             </ItemGroup>
           </div>
-          <div className="flex items-center justify-center gap-4">
-            <Field orientation="horizontal" className="w-fit">
-              <FieldLabel htmlFor="select-rows-per-page">
-                Rows per page
-              </FieldLabel>
-              <Select
-                value={String(pageSize)}
-                onValueChange={(value) => {
-                  setPageSize(Number(value));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="w-20" id="select-rows-per-page">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent align="start">
-                  <SelectGroup>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Pagination className="mx-0 w-auto">
-              <PaginationContent>
-                <PaginationItem>
-                  <Button
-                    variant="ghost"
-                    disabled={page === 1}
-                    onClick={() => setPage(1)}
-                  >
-                    <ChevronsLeft />
+          {channels.total_pages > 0 && (
+            <div className="flex items-center justify-center gap-4">
+              <Field orientation="horizontal" className="w-fit">
+                <FieldLabel htmlFor="select-rows-per-page">
+                  Rows per page
+                </FieldLabel>
+                <Select
+                  value={String(pageSize)}
+                  onValueChange={(value) => {
+                    setPageSize(Number(value));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-20" id="select-rows-per-page">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    <SelectGroup>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Pagination className="mx-0 w-auto">
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={page === 1}
+                      onClick={() => setPage(1)}
+                    >
+                      <ChevronsLeft />
+                    </Button>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={page === 1}
+                      onClick={() => handlePageChange(page, -1)}
+                    >
+                      <ChevronLeft />
+                    </Button>
+                  </PaginationItem>
+                  <Button variant="outline">
+                    {channels.total_pages === 0 ? 0 : page} /{" "}
+                    {channels.total_pages}
                   </Button>
-                </PaginationItem>
-                <PaginationItem>
-                  <Button
-                    variant="ghost"
-                    disabled={page === 1}
-                    onClick={() => handlePageChange(page, -1)}
-                  >
-                    <ChevronLeft />
-                  </Button>
-                </PaginationItem>
-                <Button variant="outline">
-                  {page} / {channels.total_pages}
-                </Button>
-                <PaginationItem>
-                  <Button
-                    variant="ghost"
-                    disabled={page === channels.total_pages}
-                    onClick={() => handlePageChange(page, 1)}
-                  >
-                    <ChevronRight />{" "}
-                  </Button>
-                </PaginationItem>
-                <PaginationItem>
-                  <Button
-                    variant="ghost"
-                    disabled={page === channels.total_pages}
-                    onClick={() => setPage(channels.total_pages)}
-                  >
-                    <ChevronsRight />
-                  </Button>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={page === channels.total_pages}
+                      onClick={() => handlePageChange(page, 1)}
+                    >
+                      <ChevronRight />{" "}
+                    </Button>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={page === channels.total_pages}
+                      onClick={() => setPage(channels.total_pages)}
+                    >
+                      <ChevronsRight />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </>
       )}
     </main>
