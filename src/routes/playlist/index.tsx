@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
-import { useFindAllPlaylists, useDeletePlaylist } from "@/src/utils/playlist";
+import {
+  useDeletePlaylist,
+  useFindAllPlaylists,
+  useUpdatePlaylistStatus,
+} from "@/src/utils/playlist";
 import type { Playlist } from "@/src/types/playlist";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -41,6 +45,7 @@ function PlaylistPage() {
   const [deletePlaylist, setDeletePlaylist] = useState<Playlist | null>(null);
   const [isDeleteChannels, setIsDeleteChannels] = useState(true);
   const deletePlaylistMutation = useDeletePlaylist();
+  const updatePlaylistStatusMutation = useUpdatePlaylistStatus();
   const {
     data: playlists,
     isLoading,
@@ -68,6 +73,13 @@ function PlaylistPage() {
         <Switch
           id={`playlist-status-${row.original.id}`}
           checked={getValue()}
+          disabled={updatePlaylistStatusMutation.isPending}
+          onCheckedChange={(active) =>
+            updatePlaylistStatusMutation.mutate({
+              id: row.original.id,
+              active,
+            })
+          }
         />
       ),
     }),

@@ -1,6 +1,19 @@
 import { Badge } from "@/src/components/ui/badge";
 import { Button, buttonVariants } from "@/src/components/ui/button";
-import { Field, FieldLabel } from "@/src/components/ui/field";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/src/components/ui/field";
+import { Input } from "@/src/components/ui/input";
 import {
   Item,
   ItemContent,
@@ -23,8 +36,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
+import type { ChannelPage } from "@/src/types/channel";
 import { useFindChannelsWithPagination } from "@/src/utils/channel";
 import { createFileRoute } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
 import {
   ChevronLeft,
   ChevronRight,
@@ -35,6 +50,19 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
+import {
+  useCreateOutputChannel,
+  useFindAllOChannels,
+} from "@/src/utils/output";
+import { Spinner } from "@/src/components/ui/spinner";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/src/components/ui/combobox";
 
 export const Route = createFileRoute("/channels/")({
   component: ChannelsPage,
@@ -44,12 +72,44 @@ function ChannelsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const {
+    error: ocError,
+    data: oChannels,
+    isError: isOCError,
+    isLoading: isOCLoading,
+    isSuccess: isOCSuccess,
+  } = useFindAllOChannels();
+  const [addChannel, setAddChannel] = useState<ChannelPage["items"][0] | null>(
+    null,
+  );
+  const [outputChannelQuery, setOutputChannelQuery] = useState("");
+  const createOutputChannel = useCreateOutputChannel();
+  const createForm = useForm({
+    defaultValues: { name: "" },
+    onSubmit: async ({ value }) => {
+      if (!addChannel) return;
+
+      await createOutputChannel.mutateAsync({
+        channel_id: addChannel.id,
+        name: value.name.trim(),
+      });
+      createForm.reset();
+      setAddChannel(null);
+    },
+  });
+  const addForm = useForm({
+    defaultValues: { output_id: -1, channel_id: -1 },
+  });
+  const {
     data: channels,
     isLoading,
     isError,
     isSuccess,
     error,
   } = useFindChannelsWithPagination(page, pageSize);
+
+  const filteredOutputChannels = oChannels?.filter((channel) =>
+    channel.name.toLowerCase().includes(outputChannelQuery.toLowerCase()),
+  );
 
   function handlePageChange(page: number, direction: -1 | 1) {
     if (direction === -1) {
@@ -94,8 +154,9 @@ function ChannelsPage() {
                     <ItemTitle>
                       {channel.tvg_name ?? channel.tvg_name}
                     </ItemTitle>
-                    <ItemDescription>
-                      <Badge variant="secondary">{channel.group.title}</Badge>
+                    <ItemDescription className="space-x-1">
+                      <Badge variant="default">{channel.playlist_name}</Badge>
+                      <Badge variant="secondary">{channel.group_title}</Badge>
                     </ItemDescription>
                   </ItemContent>
                   <ItemFooter className="flex justify-end">
@@ -109,7 +170,18 @@ function ChannelsPage() {
                     >
                       <ExternalLink />
                     </a>
-                    <Button variant="secondary" size="sm">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        createOutputChannel.reset();
+                        setAddChannel(channel);
+                        setOutputChannelQuery("");
+                        createForm.setFieldValue("name", channel.name);
+                        addForm.setFieldValue("channel_id", channel.id);
+                        addForm.setFieldValue("output_id", -1);
+                      }}
+                    >
                       <Plus />
                     </Button>
                   </ItemFooter>
@@ -192,6 +264,112 @@ function ChannelsPage() {
           )}
         </>
       )}
+      <Dialog
+        open={addChannel != null}
+        onOpenChange={(open) => {
+          if (!open) setAddChannel(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Channel</DialogTitle>
+            <DialogDescription>
+              {addChannel !== null
+                ? `Add/Create “${addChannel.name}” to the output ?`
+                : "Add/Create the channel to the output ?"}
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            id="create-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              void createForm.handleSubmit();
+            }}
+          >
+            <FieldGroup className="flex flex-row items-center gap-2">
+              <createForm.Field
+                name="name"
+                children={(field) => (
+                  <Field className="min-w-0 flex-1">
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                className="shrink-0"
+                form="create-form"
+                disabled={!addChannel || createOutputChannel.isPending}
+              >
+                {createOutputChannel.isPending ? "Creating..." : "Create"}
+              </Button>
+            </FieldGroup>
+            {createOutputChannel.isError && (
+              <FieldError
+                errors={[
+                  {
+                    message:
+                      createOutputChannel.error.response?.data?.message ??
+                      "Unable to create output channel.",
+                  },
+                ]}
+              />
+            )}
+          </form>
+          {isOCLoading && <Spinner />}
+          {isOCError && <FieldError errors={[{ message: ocError.message }]} />}
+          {isOCSuccess && (
+            <form
+              id="add-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                void addForm.handleSubmit();
+              }}
+            >
+              <FieldGroup>
+                <Combobox
+                  items={filteredOutputChannels}
+                  value={
+                    oChannels?.find(
+                      (channel) =>
+                        channel.id === addForm.state.values.output_id,
+                    ) ?? null
+                  }
+                  onValueChange={(channel: OutputChannel | null) =>
+                    addForm.setFieldValue("output_id", channel?.id ?? -1)
+                  }
+                  inputValue={outputChannelQuery}
+                  onInputValueChange={setOutputChannelQuery}
+                  itemToStringValue={(channel: OutputChannel) => channel.name}
+                >
+                  <ComboboxInput placeholder="Search channels..." />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No channels found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(channel) => (
+                        <ComboboxItem key={channel.id} value={channel}>
+                          {channel.name}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                <Button>Add</Button>
+              </FieldGroup>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

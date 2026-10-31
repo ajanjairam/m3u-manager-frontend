@@ -1,11 +1,11 @@
-export interface Playlist {
+export type Playlist = {
   id: number;
   name: string;
   uri: string;
   active: boolean;
-}
+};
 
-export interface Channel {
+export type Channel = {
   id: number;
   name: string;
   length: number | null;
@@ -16,18 +16,18 @@ export interface Channel {
   group_id: number | null;
   active: boolean;
   playlist_id: number | null;
-}
+};
 
-export interface PlaylistWithChannels extends Playlist {
+export type PlaylistWithChannels = Playlist & {
   channels: Channel[];
-}
+};
 
-export interface CreatePlaylistResponse {
+export type CreatePlaylistResponse = {
   playlist: Playlist;
   channels: Channel[];
-}
+};
 
-export interface CreatePlaylistInput {
+export type CreatePlaylistInput = {
   name: string;
   uri: string;
-}
+};
